@@ -29,7 +29,7 @@ public class ImageRW {
     private static final String DIR_INPUT_PATH = "input";
     private static final String DIR_OUTPUT_PATH = "output";
     private static final int IMAGE_TYPE = BufferedImage.TYPE_INT_RGB;
-    private static final Geometric geometric = new GeometricParGPU();
+    private static final Geometric geometric = new GeometricSeq();
 
     public static String joinPath(String... args) {
         List<String> values = new ArrayList<>(List.of(args));
@@ -40,9 +40,10 @@ public class ImageRW {
     }
 
     private static String checkFormat(String path, String format) {
-        if (!path.contains(DOT)) {
-            path = String.join(DOT, path, format);
+        if (path.contains(DOT)) {
+            path = path.split("\\.")[0];
         }
+        path = String.join(DOT, path, format);
         return path;
     }
 
@@ -154,6 +155,20 @@ public class ImageRW {
             bImages.add(image.getBufferedImage());
         }
         saveBImagesAsGif_(bImages, path);
+    }
+
+    public static void saveImagesAsGif(List<Image> images, String path, String taskName) {
+        System.out.println("INFO: Saving GIF started...");
+        File dir = new File(joinPath(DIR_DATA_PATH, DIR_OUTPUT_PATH, path));
+        if (!dir.isDirectory() && !dir.mkdir()) {
+            System.out.println("WARNING: cannot create dir " + dir.getPath());
+        }
+        File dirTask = new File(joinPath(DIR_DATA_PATH, DIR_OUTPUT_PATH, path, taskName));
+        if (!dirTask.isDirectory() && !dirTask.mkdir()) {
+            System.out.println("WARNING: cannot create dir " + dirTask.getPath());
+        }
+        saveImagesAsGif(images, joinPath(path, taskName, images.getFirst().name));
+        System.out.println("INFO: Saving GIF completed");
     }
 
     private static List<Image> scaleMaxSize(List<Image> images) {

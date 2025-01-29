@@ -54,7 +54,38 @@ public class GeometricParCPU implements Geometric {
         int h = image.h;
         int delX = (int) (BaseMath.abs(newW - w) / 2);
         int delY = (int) (BaseMath.abs(newH - h) / 2);
-        return translation(image, delX, delY);
+        Image newImage = new Image(image.name, newW, newH, image.type);
+        int[] newGrid = newImage.grid;
+        int[] grid = image.grid;
+        int gridSize = w * h;
+        int chunkSize = gridSize / AVAILABLE_PROCESSORS;
+        ExecutorService executorService = Executors.newFixedThreadPool(AVAILABLE_PROCESSORS);
+        boolean isCompleted = false;
+        try {
+            for (int chunkStart = 0; chunkStart < gridSize; chunkStart += chunkSize) {
+                final int start = chunkStart;
+                executorService.submit(() -> {
+                    for (int i = start; i < gridSize && i < start + chunkSize; i++) {
+                        int x = i % w;
+                        int y = i / w;
+                        if (x < newW && y < newH) {
+                            int j = x + y * newW;
+                            newGrid[j] = grid[i];
+                        }
+                    }
+                });
+            }
+            executorService.shutdown();
+            isCompleted = executorService.awaitTermination(TIMEOUT, TIME_UNIT);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("WARNING: translation gone wrong");
+        }
+        if (!isCompleted) {
+            executorService.shutdownNow();
+            System.out.println("WARNING: translation reached timeout");
+        }
+        return translation(newImage, delX, delY);
     }
 
     @Override
@@ -62,7 +93,7 @@ public class GeometricParCPU implements Geometric {
         int w = image.w;
         int h = image.h;
         int[] grid = image.grid;
-        Image newImage = new Image(image.name, image.grid, newW, newH, image.type);
+        Image newImage = new Image(image.name, newW, newH, image.type);
         int[] newGrid = newImage.grid;
         int currW = BaseMath.min(w, newW);
         int currH = BaseMath.min(h, newH);
@@ -77,8 +108,9 @@ public class GeometricParCPU implements Geometric {
                     for (int i = start; i < gridSize && i < start + chunkSize; i++) {
                         int x = i % currW;
                         int y = i / currW;
-                        int j = x + y * w;
-                        newGrid[j] = grid[j];
+                        int j = x + y * newW;
+                        int k = x + y * w;
+                        newGrid[j] = grid[k];
                     }
                 });
             }
@@ -104,7 +136,7 @@ public class GeometricParCPU implements Geometric {
         int newW = (int) BaseMath.max(scaleW * w, 1);
         int newH = (int) BaseMath.max(scaleH * h, 1);
         int gridSize = newW * newH;
-        Image newImage = new Image(image.name, grid, newW, newH, image.type);
+        Image newImage = new Image(image.name, newW, newH, image.type);
         int[] newGrid = newImage.grid;
         int maxSize = BaseMath.max(newW, newH);
         int[] rowIndex = new int[maxSize];
@@ -194,7 +226,7 @@ public class GeometricParCPU implements Geometric {
                         int newX = (int) (x + a * y + (a > 0 ? 0 : delW));
                         int newY = (int) (b * x + y + (b > 0 ? 0 : delH));
                         if (0 <= newX && newX < newW && 0 <= newY && newY < newH) {
-                            int j = newX + newY * w;
+                            int j = newX + newY * newW;
                             newGrid[j] = grid[i];
                         }
                     }

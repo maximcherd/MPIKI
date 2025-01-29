@@ -15,7 +15,7 @@ public class Image {
 
     public Image(String name, int[] grid, int w, int h, int type) {
         this.name = name;
-        this.grid = grid;
+        this.grid = grid.clone();
         this.w = w;
         this.h = h;
         this.type = type;

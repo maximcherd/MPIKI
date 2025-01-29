@@ -41,7 +41,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(results, saveDir, taskName);
+        ImageRW.saveImagesAsGif(results, saveDir, taskName);
         return timeDelta;
     }
 
@@ -78,7 +78,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
         return timeDelta;
     }
 
@@ -101,7 +101,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(results, saveDir, taskName);
+        ImageRW.saveImagesAsGif(results, saveDir, taskName);
         return timeDelta;
     }
 
@@ -138,7 +138,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
         return timeDelta;
     }
 
@@ -158,7 +158,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(results, saveDir, taskName);
+        ImageRW.saveImagesAsGif(results, saveDir, taskName);
         return timeDelta;
     }
 
@@ -195,7 +195,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
         return timeDelta;
     }
 
@@ -402,8 +402,8 @@ public class Executor {
         System.out.println("CPU processors: " + CPU_AVAILABLE_PROCESSORS);
         System.out.println("GPU processors: " + GPU_AVAILABLE_PROCESSORS);
         List<Image> imagesColor = ImageRW.loadImages(imageDirColor);
-        List<Image> imagesGeometric = ImageRW.loadImages(imageDirColor);
-        Image imageGeometric = imagesGeometric.getFirst();
+        List<Image> imagesGeometric = ImageRW.loadImages(imageDirGeometric);
+        Image imageGeometric = imagesGeometric.getLast();
 
         // методы для теста обработки преобразований цвета
         Method grayscaleBase = Executor.class.getDeclaredMethod("grayscale", String.class, List.class, Color.class, String.class);
@@ -420,10 +420,10 @@ public class Executor {
         Method rotationCPUH = Executor.class.getDeclaredMethod("rotationParCPUH", Image.class, Geometric.class, String.class);
 
         // запуск тестов
-        testColor(new Executor(), grayscaleBase, grayscaleCPUH, imagesColor, imageDirColor);
-        testColor(new Executor(), redMaskBase, redMaskCPUH, imagesColor, imageDirColor);
+//        testColor(new Executor(), grayscaleBase, grayscaleCPUH, imagesColor, imageDirColor);
+//        testColor(new Executor(), redMaskBase, redMaskCPUH, imagesColor, imageDirColor);
         testGeometric(new Executor(), scalingBase, scalingCPUH, imageGeometric, imageDirGeometric);
-        testGeometric(new Executor(), shearingBase, shearingCPUH, imageGeometric, imageDirGeometric);
-        testGeometric(new Executor(), rotationBase, rotationCPUH, imageGeometric, imageDirGeometric);
+//        testGeometric(new Executor(), shearingBase, shearingCPUH, imageGeometric, imageDirGeometric);
+//        testGeometric(new Executor(), rotationBase, rotationCPUH, imageGeometric, imageDirGeometric);
     }
 }
