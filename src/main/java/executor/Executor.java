@@ -28,10 +28,10 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 200; i > 50; i -= 2) {
+            for (int i = 200; i > 50; i -= 10) {
                 results.add(geometric.scaling(image, (double) i / 100, (double) 100 / i));
             }
-            for (int i = 50; i < 200; i += 2) {
+            for (int i = 50; i < 200; i += 10) {
                 results.add(geometric.scaling(image, (double) i / 100, (double) 100 / i));
             }
         } catch (Exception e) {
@@ -41,7 +41,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImagesAsGif(results, saveDir, taskName);
+//        ImageRW.saveImagesAsGif(results, saveDir, taskName);
         return timeDelta;
     }
 
@@ -53,13 +53,13 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 200; i > 50; i -= 2) {
+            for (int i = 200; i > 50; i -= 10) {
                 final int j = i;
                 results.add(executorService.submit(() ->
                         geometric.scaling(image, (double) j / 100, (double) 100 / j)
                 ));
             }
-            for (int i = 50; i < 200; i += 2) {
+            for (int i = 50; i < 200; i += 10) {
                 final int j = i;
                 results.add(executorService.submit(() ->
                         geometric.scaling(image, (double) j / 100, (double) 100 / j)
@@ -78,7 +78,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+//        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
         return timeDelta;
     }
 
@@ -88,10 +88,10 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 360; i += 5) {
+            for (int i = 0; i < 360; i += 30) {
                 results.add(geometric.shearing(image, -i, 0));
             }
-            for (int i = 0; i < 360; i += 5) {
+            for (int i = 0; i < 360; i += 30) {
                 results.add(geometric.shearing(image, 0, -i));
             }
         } catch (Exception e) {
@@ -101,7 +101,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImagesAsGif(results, saveDir, taskName);
+//        ImageRW.saveImagesAsGif(results, saveDir, taskName);
         return timeDelta;
     }
 
@@ -113,13 +113,13 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 360; i += 5) {
+            for (int i = 0; i < 360; i += 30) {
                 final int j = i;
                 results.add(executorService.submit(() ->
                         geometric.shearing(image, -j, 0)
                 ));
             }
-            for (int i = 0; i < 360; i += 5) {
+            for (int i = 0; i < 360; i += 30) {
                 final int j = i;
                 results.add(executorService.submit(() ->
                         geometric.shearing(image, 0, -j)
@@ -138,7 +138,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+//        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
         return timeDelta;
     }
 
@@ -148,7 +148,7 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 360; i += 2) {
+            for (int i = 0; i < 360; i += 30) {
                 results.add(geometric.rotation(image, i));
             }
         } catch (Exception e) {
@@ -158,7 +158,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImagesAsGif(results, saveDir, taskName);
+//        ImageRW.saveImagesAsGif(results, saveDir, taskName);
         return timeDelta;
     }
 
@@ -170,13 +170,7 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 360; i += 5) {
-                final int j = i;
-                results.add(executorService.submit(() ->
-                        geometric.rotation(image, j)
-                ));
-            }
-            for (int i = 0; i < 360; i += 5) {
+            for (int i = 0; i < 360; i += 20) {
                 final int j = i;
                 results.add(executorService.submit(() ->
                         geometric.rotation(image, j)
@@ -195,7 +189,7 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+//        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
         return timeDelta;
     }
 
@@ -403,7 +397,7 @@ public class Executor {
         System.out.println("GPU processors: " + GPU_AVAILABLE_PROCESSORS);
         List<Image> imagesColor = ImageRW.loadImages(imageDirColor);
         List<Image> imagesGeometric = ImageRW.loadImages(imageDirGeometric);
-        Image imageGeometric = imagesGeometric.getLast();
+        Image imageGeometric = imagesGeometric.getFirst();
 
         // методы для теста обработки преобразований цвета
         Method grayscaleBase = Executor.class.getDeclaredMethod("grayscale", String.class, List.class, Color.class, String.class);
@@ -423,7 +417,7 @@ public class Executor {
 //        testColor(new Executor(), grayscaleBase, grayscaleCPUH, imagesColor, imageDirColor);
 //        testColor(new Executor(), redMaskBase, redMaskCPUH, imagesColor, imageDirColor);
         testGeometric(new Executor(), scalingBase, scalingCPUH, imageGeometric, imageDirGeometric);
-//        testGeometric(new Executor(), shearingBase, shearingCPUH, imageGeometric, imageDirGeometric);
-//        testGeometric(new Executor(), rotationBase, rotationCPUH, imageGeometric, imageDirGeometric);
+        testGeometric(new Executor(), shearingBase, shearingCPUH, imageGeometric, imageDirGeometric);
+        testGeometric(new Executor(), rotationBase, rotationCPUH, imageGeometric, imageDirGeometric);
     }
 }
