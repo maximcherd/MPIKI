@@ -11,19 +11,16 @@ public class ColorParGPU implements Color {
     @Override
     public Image grayscale(Image image) {
         Image newImage = image.copy();
-        int gridSize = image.size;
-        int[] grid = image.grid;
+        final int gridSize = image.size;
+        final int[] grid = image.grid;
         int[] newGrid = newImage.grid;
         newImage.type = TYPE_GRAY;
         Kernel kernel = new Kernel() {
             @Override
             public void run() {
-                int i = getGlobalId();
-                int color = grid[i];
-                int red = (color >> 16) & 0xFF;
-                int green = (color >> 8) & 0xFF;
-                int blue = color & 0xFF;
-                newGrid[i] = (int) (0.2989 * red + 0.5870 * green + 0.1140 * blue);
+                final int i = getGlobalId();
+                final int color = grid[i];
+                newGrid[i] = (int) (0.2989 * ((color >> 16) & 0xFF) + 0.5870 * ((color >> 8) & 0xFF) + 0.1140 * (color & 0xFF));
             }
         };
         kernel.execute(Range.create(gridSize));
@@ -31,39 +28,43 @@ public class ColorParGPU implements Color {
         return newImage;
     }
 
+    private void grayscale(int[] grid, int[] newGrid) {
+
+    }
+
     @Override
     public Image redMask(Image image) {
-        int[] red1from = new int[]{0, 75, 50};
-        int[] red1to = new int[]{8, 255, 255};
-        int[] red2from = new int[]{172, 75, 50};
-        int[] red2to = new int[]{180, 255, 255};
+        final int[] red1from = new int[]{0, 75, 50};
+        final int[] red1to = new int[]{8, 255, 255};
+        final int[] red2from = new int[]{172, 75, 50};
+        final int[] red2to = new int[]{180, 255, 255};
 
         Image newImage = image.copy();
-        int gridSize = image.size;
-        int[] grid = image.grid;
+        final int gridSize = image.size;
+        final int[] grid = image.grid;
         int[] newGrid = newImage.grid;
         Kernel kernel = new Kernel() {
             @Override
             public void run() {
-                int i = getGlobalId();
-                int color = grid[i];
-                int red = (color >> 16) & 0xFF;
-                int green = (color >> 8) & 0xFF;
-                int blue = color & 0xFF;
-                double rNorm = (double) red / 255;
-                double gNorm = (double) green / 255;
-                double bNorm = (double) blue / 255;
-                double cMax = BaseMath.max(rNorm, BaseMath.max(gNorm, bNorm));
-                double cMin = BaseMath.min(rNorm, BaseMath.min(gNorm, bNorm));
+                final int i = getGlobalId();
+                final int color = grid[i];
+                final int red = (color >> 16) & 0xFF;
+                final int green = (color >> 8) & 0xFF;
+                final int blue = color & 0xFF;
+                final double rNorm = (double) red / 255;
+                final double gNorm = (double) green / 255;
+                final double bNorm = (double) blue / 255;
+                final double cMax = BaseMath.max(rNorm, BaseMath.max(gNorm, bNorm));
+                final double cMin = BaseMath.min(rNorm, BaseMath.min(gNorm, bNorm));
                 int h = 0;
                 int s = 0;
                 int v = (int) (cMax * 255);
                 if (cMax != cMin) {
-                    double c = cMax - cMin;
+                    final double c = cMax - cMin;
                     s = (int) (c / cMax * 100);
-                    double rc = (cMax - rNorm) / c;
-                    double gc = (cMax - gNorm) / c;
-                    double bc = (cMax - bNorm) / c;
+                    final double rc = (cMax - rNorm) / c;
+                    final double gc = (cMax - gNorm) / c;
+                    final double bc = (cMax - bNorm) / c;
                     if (rNorm == cMax) {
                         h = (int) (0 + bc - gc);
                     } else if (gNorm == cMax) {
@@ -73,7 +74,7 @@ public class ColorParGPU implements Color {
                     }
                     h = (h % 6) * 180;
                 }
-                int[] hsv = new int[]{h, s, v};
+                final int[] hsv = new int[]{h, s, v};
                 boolean isRed1 = true;
                 boolean isRed2 = true;
                 for (int j = 0; j < 3; j++) {

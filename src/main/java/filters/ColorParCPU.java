@@ -11,10 +11,10 @@ public class ColorParCPU implements Color {
     public Image grayscale(Image image) {
         Image newImage = image.copy();
         newImage.type = TYPE_GRAY;
-        int gridSize = image.size;
-        int[] grid = image.grid;
+        final int gridSize = image.size;
+        final int[] grid = image.grid;
         int[] newGrid = newImage.grid;
-        int chunkSize = gridSize / AVAILABLE_PROCESSORS;
+        final int chunkSize = gridSize / AVAILABLE_PROCESSORS;
         ExecutorService executorService = Executors.newFixedThreadPool(AVAILABLE_PROCESSORS);
         boolean isCompleted = false;
         try {
@@ -22,7 +22,8 @@ public class ColorParCPU implements Color {
                 final int start = chunkStart;
                 executorService.submit(() -> {
                     for (int i = start; i < gridSize && i < start + chunkSize; i++) {
-                        int[] argb = ColorARGB.int2argb(grid[i]);
+                        final int color = grid[i];
+                        final int[] argb = ColorARGB.int2argb(color);
                         newGrid[i] = (int) (0.2989 * argb[1] + 0.5870 * argb[2] + 0.1140 * argb[3]);
                     }
                 });
@@ -42,23 +43,23 @@ public class ColorParCPU implements Color {
 
     @Override
     public Image redMask(Image image) {
-        int[] red1from = new int[]{0, 75, 50};
-        int[] red1to = new int[]{8, 255, 255};
-        int[] red2from = new int[]{172, 75, 50};
-        int[] red2to = new int[]{180, 255, 255};
+        final int[] red1from = new int[]{0, 75, 50};
+        final int[] red1to = new int[]{8, 255, 255};
+        final int[] red2from = new int[]{172, 75, 50};
+        final int[] red2to = new int[]{180, 255, 255};
 
         Image newImage = image.copy();
-        int gridSize = image.size;
-        int[] grid = image.grid;
+        final int gridSize = image.size;
+        final int[] grid = image.grid;
         int[] newGrid = newImage.grid;
-        int chunkSize = gridSize / AVAILABLE_PROCESSORS;
+        final int chunkSize = gridSize / AVAILABLE_PROCESSORS;
         ExecutorService executorService = Executors.newFixedThreadPool(AVAILABLE_PROCESSORS);
         boolean isCompleted = false;
         try {
             for (int chunkStart = 0; chunkStart < gridSize; chunkStart += chunkSize) {
                 final int start = chunkStart;
                 executorService.submit(() -> {
-                    for (int i = 0; i < gridSize && i < start + chunkSize; i++) {
+                    for (int i = start; i < gridSize && i < start + chunkSize; i++) {
                         int color = grid[i];
                         int[] argb = ColorARGB.int2argb(color);
                         int[] hsv = ColorARGB.argb2hsv(argb);

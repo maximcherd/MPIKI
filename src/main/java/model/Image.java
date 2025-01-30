@@ -6,16 +6,16 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 public class Image {
-    public String name;
+    final public String name;
     public int[] grid;
-    public int w;
-    public int h;
+    final public int w;
+    final public int h;
     public int type;
-    public int size;
+    final public int size;
 
     public Image(String name, int[] grid, int w, int h, int type) {
         this.name = name;
-        this.grid = grid.clone();
+        this.grid = grid;
         this.w = w;
         this.h = h;
         this.type = type;

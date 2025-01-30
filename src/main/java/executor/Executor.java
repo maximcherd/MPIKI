@@ -4,13 +4,18 @@ import filters.*;
 import helpers.ImageRW;
 import model.Image;
 
+import java.awt.image.BufferedImage;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.*;
 
 public class Executor {
+    public static final boolean SAVE_IMAGES = false;
+    public static final boolean GENERATE_IMAGE = false;
+    public static final int STEPS_COUNT = 10;
+    public static final int[] STEPS = getSteps();
     public static final long TIMEOUT = 600;
     public static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
     public static final int CPU_AVAILABLE_PROCESSORS = Runtime.getRuntime().availableProcessors();
@@ -28,11 +33,12 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 200; i > 50; i -= 10) {
-                results.add(geometric.scaling(image, (double) i / 100, (double) 100 / i));
-            }
-            for (int i = 50; i < 200; i += 10) {
-                results.add(geometric.scaling(image, (double) i / 100, (double) 100 / i));
+            for (final int i : STEPS) {
+                if (SAVE_IMAGES) {
+                    results.add(geometric.scaling(image, (double) i / 100, (double) 100 / i));
+                } else {
+                    geometric.scaling(image, (double) i / 100, (double) 100 / i);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -41,7 +47,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-//        ImageRW.saveImagesAsGif(results, saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImagesAsGif(results, saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -53,17 +61,16 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 200; i > 50; i -= 10) {
-                final int j = i;
-                results.add(executorService.submit(() ->
-                        geometric.scaling(image, (double) j / 100, (double) 100 / j)
-                ));
-            }
-            for (int i = 50; i < 200; i += 10) {
-                final int j = i;
-                results.add(executorService.submit(() ->
-                        geometric.scaling(image, (double) j / 100, (double) 100 / j)
-                ));
+            for (final int i : STEPS) {
+                if (SAVE_IMAGES) {
+                    results.add(executorService.submit(() ->
+                            geometric.scaling(image, (double) i / 100, (double) 100 / i)
+                    ));
+                } else {
+                    executorService.submit(() ->
+                            geometric.scaling(image, (double) i / 100, (double) 100 / i)
+                    );
+                }
             }
             executorService.shutdown();
             isCompleted = executorService.awaitTermination(TIMEOUT, TIME_UNIT);
@@ -78,7 +85,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-//        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -88,11 +97,14 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 360; i += 30) {
-                results.add(geometric.shearing(image, -i, 0));
-            }
-            for (int i = 0; i < 360; i += 30) {
-                results.add(geometric.shearing(image, 0, -i));
+            for (final int i : STEPS) {
+                final int x = -i;
+                final int y = 0;
+                if (SAVE_IMAGES) {
+                    results.add(geometric.shearing(image, x, y));
+                } else {
+                    geometric.shearing(image, x, y);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -101,7 +113,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-//        ImageRW.saveImagesAsGif(results, saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImagesAsGif(results, saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -113,17 +127,18 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 360; i += 30) {
-                final int j = i;
-                results.add(executorService.submit(() ->
-                        geometric.shearing(image, -j, 0)
-                ));
-            }
-            for (int i = 0; i < 360; i += 30) {
-                final int j = i;
-                results.add(executorService.submit(() ->
-                        geometric.shearing(image, 0, -j)
-                ));
+            for (final int i : STEPS) {
+                final int x = -i;
+                final int y = 0;
+                if (SAVE_IMAGES) {
+                    results.add(executorService.submit(() ->
+                            geometric.shearing(image, x, y)
+                    ));
+                } else {
+                    executorService.submit(() ->
+                            geometric.shearing(image, x, y)
+                    );
+                }
             }
             executorService.shutdown();
             isCompleted = executorService.awaitTermination(TIMEOUT, TIME_UNIT);
@@ -138,7 +153,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-//        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -148,8 +165,12 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 360; i += 30) {
-                results.add(geometric.rotation(image, i));
+            for (final int i : STEPS) {
+                if (SAVE_IMAGES) {
+                    results.add(geometric.rotation(image, i));
+                } else {
+                    geometric.rotation(image, i);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -158,7 +179,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-//        ImageRW.saveImagesAsGif(results, saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImagesAsGif(results, saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -170,11 +193,16 @@ public class Executor {
         System.out.println("INFO " + taskName + " started...");
         long startTime = System.currentTimeMillis();
         try {
-            for (int i = 0; i < 360; i += 20) {
-                final int j = i;
-                results.add(executorService.submit(() ->
-                        geometric.rotation(image, j)
-                ));
+            for (final int i : STEPS) {
+                if (SAVE_IMAGES) {
+                    results.add(executorService.submit(() ->
+                            geometric.rotation(image, i)
+                    ));
+                } else {
+                    executorService.submit(() ->
+                            geometric.rotation(image, i)
+                    );
+                }
             }
             executorService.shutdown();
             isCompleted = executorService.awaitTermination(TIMEOUT, TIME_UNIT);
@@ -189,7 +217,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-//        ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImagesAsGif(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -200,7 +230,11 @@ public class Executor {
         long startTime = System.currentTimeMillis();
         try {
             for (Image image : images) {
-                results.add(color.grayscale(image));
+                if (SAVE_IMAGES) {
+                    results.add(color.grayscale(image));
+                } else {
+                    color.grayscale(image);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -209,7 +243,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(results, saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImages(results, saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -222,9 +258,15 @@ public class Executor {
         long startTime = System.currentTimeMillis();
         try {
             for (Image image : images) {
-                results.add(executorService.submit(() ->
-                        color.grayscale(image)
-                ));
+                if (SAVE_IMAGES) {
+                    results.add(executorService.submit(() ->
+                            color.grayscale(image)
+                    ));
+                } else {
+                    executorService.submit(() ->
+                            color.grayscale(image)
+                    );
+                }
             }
             executorService.shutdown();
             isCompleted = executorService.awaitTermination(TIMEOUT, TIME_UNIT);
@@ -239,7 +281,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImages(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -250,7 +294,11 @@ public class Executor {
         long startTime = System.currentTimeMillis();
         try {
             for (Image image : images) {
-                results.add(color.redMask(image));
+                if (SAVE_IMAGES) {
+                    results.add(color.redMask(image));
+                } else {
+                    color.redMask(image);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -259,7 +307,9 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(results, saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImages(results, saveDir, taskName);
+        }
         return timeDelta;
     }
 
@@ -272,9 +322,15 @@ public class Executor {
         long startTime = System.currentTimeMillis();
         try {
             for (Image image : images) {
-                results.add(executorService.submit(() ->
-                        color.redMask(image)
-                ));
+                if (SAVE_IMAGES) {
+                    results.add(executorService.submit(() ->
+                            color.redMask(image)
+                    ));
+                } else {
+                    executorService.submit(() ->
+                            color.redMask(image)
+                    );
+                }
             }
             executorService.shutdown();
             isCompleted = executorService.awaitTermination(TIMEOUT, TIME_UNIT);
@@ -289,66 +345,11 @@ public class Executor {
         long endTime = System.currentTimeMillis();
         long timeDelta = endTime - startTime;
         System.out.println("INFO: " + taskName + " completed in " + timeDelta + " ms");
-        ImageRW.saveImages(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        if (SAVE_IMAGES) {
+            ImageRW.saveImages(ImageRW.imagesFromFuture(results), saveDir, taskName);
+        }
         return timeDelta;
     }
-
-//    public static void startTestsGeometric() {
-//        long timeScalingSeq = scalingSeq();
-//        long timeScalingParCPU = scalingParCPU();
-//        long timeScalingParGPU = scalingParGPU();
-//        double effScalingParCPU = (double) timeScalingSeq / timeScalingParCPU / AVAILABLE_PROCESSORS * 100;
-//        double effScalingParGPU = (double) timeScalingSeq / timeScalingParGPU * 100;
-//
-//        long timeShearingSeq = shearingSeq();
-//        long timeShearingParCPU = shearingParCPU();
-//        long timeShearingParGPU = shearingParGPU();
-//        double effShearingParCPU = (double) timeShearingSeq / timeShearingParCPU / AVAILABLE_PROCESSORS * 100;
-//        double effShearingParGPU = (double) timeShearingSeq / timeShearingParGPU * 100;
-//
-//        long timeRotationSeq = rotationSeq();
-//        long timeRotationParCPU = rotationParCPU();
-//        long timeRotationParGPU = rotationParGPU();
-//        double effRotationParCPU = (double) timeRotationSeq / timeRotationParCPU / AVAILABLE_PROCESSORS * 100;
-//        double effRotationParGPU = (double) timeRotationSeq / timeRotationParGPU * 100;
-//
-//        System.out.println("Scaling CPU efficiency: " + String.format("%1.2f", effScalingParCPU) + "%");
-//        System.out.println("Scaling GPU efficiency: " + String.format("%1.2f", effScalingParGPU) + "%");
-//        System.out.println("Rotation CPU efficiency: " + String.format("%1$,.2f", effShearingParCPU) + "%");
-//        System.out.println("Rotation GPU efficiency: " + String.format("%1$,.2f", effShearingParGPU) + "%");
-//        System.out.println("Rotation CPU efficiency: " + String.format("%1$,.2f", effRotationParCPU) + "%");
-//        System.out.println("Rotation GPU efficiency: " + String.format("%1$,.2f", effRotationParGPU) + "%");
-//    }
-
-//    public static void startTestsColor(String imageDir) {
-//        String taskNameSeq = "Seq";
-//        String taskNameCPU = "ParCPU";
-//        String taskNameGPU = "ParGPU";
-//        List<Image> images = ImageRW.loadImages(imageDir);
-//
-//        long timeGrayscaleSeq = grayscale(taskNameSeq, images, colorSeq, imageDir);
-//        long timeGrayscaleParCPUH = grayscaleParCPUH(images, colorSeq, imageDir);
-//        long timeGrayscaleParCPU = grayscale(taskNameCPU, images, colorParCPU, imageDir);
-//        long timeGrayscaleParGPU = grayscale(taskNameGPU, images, colorParGPU, imageDir);
-//        double effGrayscaleParCPUH = (double) timeGrayscaleSeq / timeGrayscaleParCPUH / CPU_AVAILABLE_PROCESSORS * 100;
-//        double effGrayscaleParCPU = (double) timeGrayscaleSeq / timeGrayscaleParCPU / CPU_AVAILABLE_PROCESSORS * 100;
-//        double effGrayscaleParGPU = (double) timeGrayscaleSeq / timeGrayscaleParGPU / GPU_AVAILABLE_PROCESSORS * 100;
-//
-//        long timeRedMaskSeq = redMask(taskNameSeq, images, colorSeq, imageDir);
-//        long timeRedMaskParCPUH = redMaskParCPUH(images, colorSeq, imageDir);
-//        long timeRedMaskParCPU = redMask(taskNameCPU, images, colorParCPU, imageDir);
-//        long timeRedMaskParGPU = redMask(taskNameGPU, images, colorParGPU, imageDir);
-//        double effRedMaskParCPUH = (double) timeRedMaskSeq / timeRedMaskParCPUH / CPU_AVAILABLE_PROCESSORS * 100;
-//        double effRedMaskParCPU = (double) timeRedMaskSeq / timeRedMaskParCPU / CPU_AVAILABLE_PROCESSORS * 100;
-//        double effRedMaskParGPU = (double) timeRedMaskSeq / timeRedMaskParGPU / GPU_AVAILABLE_PROCESSORS * 100;
-//
-//        System.out.println("Grayscale CPUH efficiency: " + String.format("%04.2f", effGrayscaleParCPUH) + "%");
-//        System.out.println("Grayscale CPU  efficiency: " + String.format("%04.2f", effGrayscaleParCPU) + "%");
-//        System.out.println("Grayscale GPU  efficiency: " + String.format("%04.2f", effGrayscaleParGPU) + "%");
-//        System.out.println("RedMask   CPUH efficiency: " + String.format("%04.2f", effRedMaskParCPUH) + "%");
-//        System.out.println("RedMask   CPU  efficiency: " + String.format("%04.2f", effRedMaskParCPU) + "%");
-//        System.out.println("RedMask   GPU  efficiency: " + String.format("%04.2f", effRedMaskParGPU) + "%");
-//    }
 
     public static void testColor(
             Object object, Method methodBase, Method methodCPUH, List<Image> images, String imageDir
@@ -357,17 +358,23 @@ public class Executor {
         String taskNameCPU = "ParCPU";
         String taskNameGPU = "ParGPU";
         long timeSeq = (long) methodBase.invoke(object, taskNameSeq, images, colorSeq, imageDir);
-        long timeParCPUH = (long) methodCPUH.invoke(object, images, colorSeq, imageDir);
         long timeParCPU = (long) methodBase.invoke(object, taskNameCPU, images, colorParCPU, imageDir);
         long timeParGPU = (long) methodBase.invoke(object, taskNameGPU, images, colorParGPU, imageDir);
-        double effParCPUH = (double) timeSeq / timeParCPUH / CPU_AVAILABLE_PROCESSORS * 100;
+        long timeParCPUH = 0;
+        double effParCPUH = 0;
+        if (images.size() > 1) {
+            timeParCPUH = (long) methodCPUH.invoke(object, images, colorSeq, imageDir);
+            effParCPUH = (double) timeSeq / timeParCPUH / CPU_AVAILABLE_PROCESSORS * 100;
+        }
         double effParCPU = (double) timeSeq / timeParCPU / CPU_AVAILABLE_PROCESSORS * 100;
         double effParGPU = (double) timeSeq / timeParGPU / GPU_AVAILABLE_PROCESSORS * 100;
 
         System.out.println(methodBase.getName() + " test complete:");
-        System.out.println("CPUH efficiency: " + String.format("%04.2f", effParCPUH) + "%");
-        System.out.println("CPU  efficiency: " + String.format("%04.2f", effParCPU) + "%");
-        System.out.println("GPU  efficiency: " + String.format("%04.2f", effParGPU) + "%");
+        System.out.println("CPU  efficiency: " + String.format("%05.2f", effParCPU) + "%");
+        System.out.println("GPU  efficiency: " + String.format("%05.2f", effParGPU) + "%");
+        if (images.size() > 1) {
+            System.out.println("CPUH efficiency: " + String.format("%05.2f", effParCPUH) + "%");
+        }
     }
 
     public static void testGeometric(
@@ -377,27 +384,60 @@ public class Executor {
         String taskNameCPU = "ParCPU";
         String taskNameGPU = "ParGPU";
         long timeSeq = (long) methodBase.invoke(object, taskNameSeq, image, geometricSeq, imageDir);
-        long timeParCPUH = (long) methodCPUH.invoke(object, image, geometricSeq, imageDir);
         long timeParCPU = (long) methodBase.invoke(object, taskNameCPU, image, geometricParCPU, imageDir);
         long timeParGPU = (long) methodBase.invoke(object, taskNameGPU, image, geometricParGPU, imageDir);
-        double effParCPUH = (double) timeSeq / timeParCPUH / CPU_AVAILABLE_PROCESSORS * 100;
+        long timeParCPUH = 0;
+        double effParCPUH = 0;
+        if (STEPS_COUNT > 1) {
+            timeParCPUH = (long) methodCPUH.invoke(object, image, geometricSeq, imageDir);
+            effParCPUH = (double) timeSeq / timeParCPUH / CPU_AVAILABLE_PROCESSORS * 100;
+        }
         double effParCPU = (double) timeSeq / timeParCPU / CPU_AVAILABLE_PROCESSORS * 100;
         double effParGPU = (double) timeSeq / timeParGPU / GPU_AVAILABLE_PROCESSORS * 100;
 
         System.out.println(methodBase.getName() + " test complete:");
-        System.out.println("CPUH efficiency: " + String.format("%04.2f", effParCPUH) + "%");
-        System.out.println("CPU  efficiency: " + String.format("%04.2f", effParCPU) + "%");
-        System.out.println("GPU  efficiency: " + String.format("%04.2f", effParGPU) + "%");
+        System.out.println("CPU  efficiency: " + String.format("%05.2f", effParCPU) + "%");
+        System.out.println("GPU  efficiency: " + String.format("%05.2f", effParGPU) + "%");
+        if (STEPS_COUNT > 1) {
+            System.out.println("CPUH efficiency: " + String.format("%05.2f", effParCPUH) + "%");
+        }
+    }
+
+    private static Image generateImage(String name, int w, int h) {
+        Random random = new Random();
+        int gridSize = w * h;
+        int[] grid = new int[gridSize];
+        for (int i = 0; i < gridSize; i++) {
+            grid[i] = random.nextInt();
+        }
+        return new Image(name, grid, w, h, BufferedImage.TYPE_INT_ARGB);
+    }
+
+    private static int[] getSteps() {
+        int[] steps = new int[STEPS_COUNT];
+        for (int i = 0; i < STEPS_COUNT; i++) {
+            steps[i] = (int) (360 * Math.random());
+        }
+        return steps;
     }
 
     public static void main(String[] args) throws Exception {
-        String imageDirColor = "2";
-        String imageDirGeometric = "1";
+        String imageDir = "1";
+        String imagesDir = "2";
         System.out.println("CPU processors: " + CPU_AVAILABLE_PROCESSORS);
         System.out.println("GPU processors: " + GPU_AVAILABLE_PROCESSORS);
-        List<Image> imagesColor = ImageRW.loadImages(imageDirColor);
-        List<Image> imagesGeometric = ImageRW.loadImages(imageDirGeometric);
-        Image imageGeometric = imagesGeometric.getFirst();
+        Image image;
+        List<Image> images;
+        if (GENERATE_IMAGE) {
+            imageDir = imagesDir = "generated";
+            image = generateImage("test", 20000, 20000);
+            images = new ArrayList<>();
+            images.add(image);
+        } else {
+            images = ImageRW.loadImages(imageDir);
+            image = images.getFirst();
+            images = ImageRW.loadImages(imagesDir);
+        }
 
         // методы для теста обработки преобразований цвета
         Method grayscaleBase = Executor.class.getDeclaredMethod("grayscale", String.class, List.class, Color.class, String.class);
@@ -414,10 +454,10 @@ public class Executor {
         Method rotationCPUH = Executor.class.getDeclaredMethod("rotationParCPUH", Image.class, Geometric.class, String.class);
 
         // запуск тестов
-//        testColor(new Executor(), grayscaleBase, grayscaleCPUH, imagesColor, imageDirColor);
-//        testColor(new Executor(), redMaskBase, redMaskCPUH, imagesColor, imageDirColor);
-        testGeometric(new Executor(), scalingBase, scalingCPUH, imageGeometric, imageDirGeometric);
-        testGeometric(new Executor(), shearingBase, shearingCPUH, imageGeometric, imageDirGeometric);
-        testGeometric(new Executor(), rotationBase, rotationCPUH, imageGeometric, imageDirGeometric);
+//        testColor(new Executor(), grayscaleBase, grayscaleCPUH, images, imagesDir);
+//        testColor(new Executor(), redMaskBase, redMaskCPUH, images, imagesDir);
+//        testGeometric(new Executor(), scalingBase, scalingCPUH, image, imageDir);
+        testGeometric(new Executor(), shearingBase, shearingCPUH, image, imageDir);
+//        testGeometric(new Executor(), rotationBase, rotationCPUH, image, imageDir);
     }
 }

@@ -10,11 +10,16 @@ public class GeometricParCPU implements Geometric {
 
     @Override
     public Image translation(Image image, int delX, int delY) {
+        Image newImage = image.copy();
+        translation(image, newImage, delX, delY);
+        return newImage;
+    }
+
+    private void translation(Image image, Image newImage, int delX, int delY) {
         int w = image.w;
         int h = image.h;
         int gridSize = image.size;
         int[] grid = image.grid;
-        Image newImage = image.copy();
         int[] newGrid = newImage.grid;
         int chunkSize = gridSize / AVAILABLE_PROCESSORS;
         ExecutorService executorService = Executors.newFixedThreadPool(AVAILABLE_PROCESSORS);
@@ -45,7 +50,6 @@ public class GeometricParCPU implements Geometric {
             executorService.shutdownNow();
             System.out.println("WARNING: translation reached timeout");
         }
-        return newImage;
     }
 
     @Override
@@ -90,10 +94,15 @@ public class GeometricParCPU implements Geometric {
 
     @Override
     public Image crop(Image image, int newW, int newH) {
+        Image newImage = new Image(image.name, newW, newH, image.type);
+        crop(image, newImage, newW, newH);
+        return newImage;
+    }
+
+    private void crop(Image image,Image newImage, int newW, int newH) {
         int w = image.w;
         int h = image.h;
         int[] grid = image.grid;
-        Image newImage = new Image(image.name, newW, newH, image.type);
         int[] newGrid = newImage.grid;
         int currW = BaseMath.min(w, newW);
         int currH = BaseMath.min(h, newH);
@@ -124,7 +133,6 @@ public class GeometricParCPU implements Geometric {
             executorService.shutdownNow();
             System.out.println("WARNING: crop reached timeout");
         }
-        return newImage;
     }
 
 
@@ -209,6 +217,16 @@ public class GeometricParCPU implements Geometric {
         int newW = (int) (w + BaseMath.abs(a) * h);
         int newH = (int) (h + BaseMath.abs(b) * w);
         Image newImage = new Image(image.name, newW, newH, image.type);
+        shearingByK(image, newImage, a, b);
+        return newImage;
+    }
+
+    private void shearingByK(Image image, Image newImage, double a, double b) {
+        int w = image.w;
+        int h = image.h;
+        int[] grid = image.grid;
+        int newW = (int) (w + BaseMath.abs(a) * h);
+        int newH = (int) (h + BaseMath.abs(b) * w);
         int[] newGrid = newImage.grid;
         int delW = newW - w;
         int delH = newH - h;
@@ -227,7 +245,8 @@ public class GeometricParCPU implements Geometric {
                         int newY = (int) (b * x + y + (b > 0 ? 0 : delH));
                         if (0 <= newX && newX < newW && 0 <= newY && newY < newH) {
                             int j = newX + newY * newW;
-                            newGrid[j] = grid[i];
+                            int color = grid[i];
+                            newGrid[j] = color;
                         }
                     }
                 });
@@ -242,7 +261,6 @@ public class GeometricParCPU implements Geometric {
             executorService.shutdownNow();
             System.out.println("WARNING: shearingByK reached timeout");
         }
-        return newImage;
     }
 
     @Override
@@ -376,15 +394,16 @@ public class GeometricParCPU implements Geometric {
         double tgHalfAngle = BaseMath.tgTailor(radian / 2);
         int newW = (int) (BaseMath.abs(cos) * w + BaseMath.abs(sin) * h) + 10;
         int newH = (int) (BaseMath.abs(cos) * h + BaseMath.abs(sin) * w) + 10;
-        Image newImage = shearingByK(image, -tgHalfAngle, 0);
-        newImage = shearingByK(newImage, 0, sin);
-        newImage = shearingByK(newImage, -tgHalfAngle, 0);
+        Image newImage = new Image(image.name, newW, newH, image.type);
+        shearingByK(image, newImage, -tgHalfAngle, 0);
+        shearingByK(newImage, newImage, 0, sin);
+        shearingByK(newImage, newImage, -tgHalfAngle, 0);
         int currW = newImage.w;
         int currH = newImage.h;
         int delWd2 = (currW - newW) / 2;
         int delHd2 = (currH - newH) / 2;
-        newImage = translation(newImage, -delWd2, -delHd2);
-        newImage = crop(newImage, newW, newH);
+        translation(newImage, newImage, -delWd2, -delHd2);
+        crop(newImage, newImage, newW, newH);
         return newImage;
     }
 }
