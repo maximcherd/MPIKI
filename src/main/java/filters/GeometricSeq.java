@@ -195,9 +195,57 @@ public class GeometricSeq implements Geometric {
         return newImage;
     }
 
+//    @Override
+//    public Image rotation(Image image, double angle) {
+//        System.out.println("start");
+//        double radian = BaseMath.angle2Radians(angle);
+//        if (radian < 0) {
+//            radian += BaseMath.PIx2;
+//        }
+//        if (BaseMath.PId2 <= radian && radian < BaseMath.PI) {
+//            image = rotation90(image);
+//            radian -= BaseMath.PId2;
+//        } else if (BaseMath.PI <= radian && radian < BaseMath.PIx3d2) {
+//            image = rotation180(image);
+//            radian -= BaseMath.PI;
+//        } else if (BaseMath.PIx3d2 <= radian && radian < BaseMath.PIx2) {
+//            image = rotation270(image);
+//            radian -= BaseMath.PIx3d2;
+//        }
+//        System.out.println("init");
+//        final int w = image.w;
+//        final int h = image.h;
+//        final double sin = BaseMath.sinTailor(radian);
+//        final double cos = BaseMath.cosTailor(radian);
+//        final double tgHalfAngle = BaseMath.tgTailor(radian / 2);
+//        final int newW = (int) (BaseMath.abs(cos) * w + BaseMath.abs(sin) * h) + 10;
+//        final int newH = (int) (BaseMath.abs(cos) * h + BaseMath.abs(sin) * w) + 10;
+//
+//        int newW1 = (int) (w + BaseMath.abs(-tgHalfAngle) * h);
+//        int newH1 = (int) (h);
+//        int newW2 = (int) (newW1);
+//        int newH2 = (int) (newH1 + BaseMath.abs(sin) * newW1);
+//        int newW3 = (int) (newW2 + BaseMath.abs(-tgHalfAngle) * newH2);
+//        int newH3 = (int) (newH2);
+//        System.out.println("rotation");
+//        System.out.println("newW/newH 1=" + newW1 + "/" + newH1);
+//        System.out.println("newW/newH 2=" + newW2 + "/" + newH2);
+//        System.out.println("newW/newH 3=" + newW3 + "/" + newH3);
+//        Image newImage = new Image(image.name, newW3, newH3, image.type);
+//        shearingByK(image, newImage, -tgHalfAngle, 0);
+//        shearingByK(newImage, newImage, 0, sin);
+//        shearingByK(newImage, newImage, -tgHalfAngle, 0);
+//        final int currW = newImage.w;
+//        final int currH = newImage.h;
+//        final int delWd2 = (currW - newW) / 2;
+//        final int delHd2 = (currH - newH) / 2;
+//        translation(newImage, newImage, -delWd2, -delHd2);
+//        crop(newImage, newImage, newW, newH);
+//        return newImage;
+//    }
+
     @Override
     public Image rotation(Image image, double angle) {
-        System.out.println("start");
         double radian = BaseMath.angle2Radians(angle);
         if (radian < 0) {
             radian += BaseMath.PIx2;
@@ -212,7 +260,6 @@ public class GeometricSeq implements Geometric {
             image = rotation270(image);
             radian -= BaseMath.PIx3d2;
         }
-        System.out.println("init");
         final int w = image.w;
         final int h = image.h;
         final double sin = BaseMath.sinTailor(radian);
@@ -220,21 +267,9 @@ public class GeometricSeq implements Geometric {
         final double tgHalfAngle = BaseMath.tgTailor(radian / 2);
         final int newW = (int) (BaseMath.abs(cos) * w + BaseMath.abs(sin) * h) + 10;
         final int newH = (int) (BaseMath.abs(cos) * h + BaseMath.abs(sin) * w) + 10;
-
-        int newW1 = (int) (w + BaseMath.abs(-tgHalfAngle) * h);
-        int newH1 = (int) (h);
-        int newW2 = (int) (newW1);
-        int newH2 = (int) (newH1 + BaseMath.abs(sin) * newW1);
-        int newW3 = (int) (newW2 + BaseMath.abs(-tgHalfAngle) * newH2);
-        int newH3 = (int) (newH2);
-        System.out.println("rotation");
-        System.out.println("newW/newH 1=" + newW1 + "/" + newH1);
-        System.out.println("newW/newH 2=" + newW2 + "/" + newH2);
-        System.out.println("newW/newH 3=" + newW3 + "/" + newH3);
-        Image newImage = new Image(image.name, newW3, newH3, image.type);
-        shearingByK(image, newImage, -tgHalfAngle, 0);
-        shearingByK(newImage, newImage, 0, sin);
-        shearingByK(newImage, newImage, -tgHalfAngle, 0);
+        Image newImage = shearingByK(image, -tgHalfAngle, 0);
+        newImage = shearingByK(newImage, 0, sin);
+        newImage = shearingByK(newImage, -tgHalfAngle, 0);
         final int currW = newImage.w;
         final int currH = newImage.h;
         final int delWd2 = (currW - newW) / 2;

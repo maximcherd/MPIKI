@@ -248,6 +248,42 @@ public class GeometricParGPU implements Geometric {
         return newImage;
     }
 
+//    @Override
+//    public Image rotation(Image image, double angle) {
+//        double radian = BaseMath.angle2Radians(angle);
+//        if (radian < 0) {
+//            radian += BaseMath.PIx2;
+//        }
+//        if (BaseMath.PId2 <= radian && radian < BaseMath.PI) {
+//            image = rotation90(image);
+//            radian -= BaseMath.PId2;
+//        } else if (BaseMath.PI <= radian && radian < BaseMath.PIx3d2) {
+//            image = rotation180(image);
+//            radian -= BaseMath.PI;
+//        } else if (BaseMath.PIx3d2 <= radian && radian < BaseMath.PIx2) {
+//            image = rotation270(image);
+//            radian -= BaseMath.PIx3d2;
+//        }
+//        int w = image.w;
+//        int h = image.h;
+//        double sin = BaseMath.sinTailor(radian);
+//        double cos = BaseMath.cosTailor(radian);
+//        double tgHalfAngle = BaseMath.tgTailor(radian / 2);
+//        int newW = (int) (BaseMath.abs(cos) * w + BaseMath.abs(sin) * h) + 10;
+//        int newH = (int) (BaseMath.abs(cos) * h + BaseMath.abs(sin) * w) + 10;
+//        Image newImage = new Image(image.name, newW, newH, image.type);
+//        shearingByK(image, newImage, -tgHalfAngle, 0);
+//        shearingByK(newImage, newImage, 0, sin);
+//        shearingByK(newImage, newImage, -tgHalfAngle, 0);
+//        int currW = newImage.w;
+//        int currH = newImage.h;
+//        int delWd2 = (currW - newW) / 2;
+//        int delHd2 = (currH - newH) / 2;
+//        translation(newImage, newImage, -delWd2, -delHd2);
+//        crop(newImage, newImage, newW, newH);
+//        return newImage;
+//    }
+
     @Override
     public Image rotation(Image image, double angle) {
         double radian = BaseMath.angle2Radians(angle);
@@ -271,10 +307,9 @@ public class GeometricParGPU implements Geometric {
         double tgHalfAngle = BaseMath.tgTailor(radian / 2);
         int newW = (int) (BaseMath.abs(cos) * w + BaseMath.abs(sin) * h) + 10;
         int newH = (int) (BaseMath.abs(cos) * h + BaseMath.abs(sin) * w) + 10;
-        Image newImage = new Image(image.name, newW, newH, image.type);
-        shearingByK(image, newImage, -tgHalfAngle, 0);
-        shearingByK(newImage, newImage, 0, sin);
-        shearingByK(newImage, newImage, -tgHalfAngle, 0);
+        Image newImage = shearingByK(image, -tgHalfAngle, 0);
+        newImage = shearingByK(newImage, 0, sin);
+        newImage = shearingByK(newImage, -tgHalfAngle, 0);
         int currW = newImage.w;
         int currH = newImage.h;
         int delWd2 = (currW - newW) / 2;

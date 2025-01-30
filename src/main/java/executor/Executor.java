@@ -13,8 +13,8 @@ import java.util.concurrent.*;
 
 public class Executor {
     public static final boolean SAVE_IMAGES = false;
-    public static final boolean GENERATE_IMAGE = false;
-    public static final int STEPS_COUNT = 10;
+    public static final boolean GENERATE_IMAGE = true;
+    public static final int STEPS_COUNT = 1;
     public static final int[] STEPS = getSteps();
     public static final long TIMEOUT = 600;
     public static final TimeUnit TIME_UNIT = TimeUnit.SECONDS;
@@ -457,7 +457,7 @@ public class Executor {
 //        testColor(new Executor(), grayscaleBase, grayscaleCPUH, images, imagesDir);
 //        testColor(new Executor(), redMaskBase, redMaskCPUH, images, imagesDir);
 //        testGeometric(new Executor(), scalingBase, scalingCPUH, image, imageDir);
-        testGeometric(new Executor(), shearingBase, shearingCPUH, image, imageDir);
-//        testGeometric(new Executor(), rotationBase, rotationCPUH, image, imageDir);
+//        testGeometric(new Executor(), shearingBase, shearingCPUH, image, imageDir);
+        testGeometric(new Executor(), rotationBase, rotationCPUH, image, imageDir);
     }
 }
